@@ -1,7 +1,12 @@
 from datetime import datetime
 import httpx
 from typing import Any, Optional
-from libre_link_up.types import GlucoseSensorReading, LibreLinkUpUrl, Connection
+from libre_link_up.types import (
+    GlucoseSensorReading,
+    LibreLinkUpUrl,
+    Connection,
+    ReadingSource,
+)
 
 
 def _convert_timestamp_string_to_datetime(timestamp: str) -> float:
@@ -132,8 +137,7 @@ class LibreLinkUpClient:
                         timestamp=1704070800,
                         value=5.0,
                         value_in_mg_per_dl=90.0,
-                        low_at_the_time=False,
-                        high_at_the_time=False,
+                        source="graph",
                     ),
                     ...
                 ]
@@ -149,8 +153,7 @@ class LibreLinkUpClient:
                     ),
                     value=reading["Value"],
                     value_in_mg_per_dl=reading["ValueInMgPerDl"],
-                    low_at_the_time=reading["isLow"],
-                    high_at_the_time=reading["isHigh"],
+                    source=ReadingSource.GRAPH,
                 )
             )
         return glucose_readings
@@ -182,8 +185,7 @@ class LibreLinkUpClient:
                         timestamp=1704070800,
                         value=5.0,
                         value_in_mg_per_dl=90.0,
-                        low_at_the_time=False,
-                        high_at_the_time=False,
+                        source="logbook",
                     ),
                     ...
                 ]
@@ -198,8 +200,7 @@ class LibreLinkUpClient:
                     ),
                     value=logbook_entry["Value"],
                     value_in_mg_per_dl=logbook_entry["ValueInMgPerDl"],
-                    low_at_the_time=logbook_entry["isLow"],
-                    high_at_the_time=logbook_entry["isHigh"],
+                    source=ReadingSource.LOGBOOK,
                 )
             )
         return logbook_data
@@ -214,10 +215,17 @@ class LibreLinkUpClient:
                     timestamp=1704070800,
                     value=5.0,
                     value_in_mg_per_dl=90.0,
-                    low_at_the_time=False,
-                    high_at_the_time=False,
+                    source="latest_reading",
                 )
         """
-        graph_readings = self.get_graph_readings()
-        latest_reading = graph_readings[-1]
+        resp = self.get_raw_graph_readings()
+        raw_reading = resp["data"]["connection"]["glucoseMeasurement"]
+        latest_reading = GlucoseSensorReading(
+            unix_timestamp=_convert_timestamp_string_to_datetime(
+                raw_reading["Timestamp"]
+            ),
+            value=raw_reading["Value"],
+            value_in_mg_per_dl=raw_reading["ValueInMgPerDl"],
+            source=ReadingSource.LATEST_READING,
+        )
         return latest_reading

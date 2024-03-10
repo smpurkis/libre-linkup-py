@@ -1,5 +1,6 @@
 import pytest
 from libre_link_up.client import LibreLinkUpClient
+from libre_link_up.types import ReadingSource
 
 
 @pytest.mark.dependency()
@@ -45,8 +46,7 @@ def test_get_graph_data(client: LibreLinkUpClient) -> None:
     assert graph_values[0].unix_timestamp is not None
     assert graph_values[0].value is not None
     assert graph_values[0].value_in_mg_per_dl is not None
-    assert graph_values[0].low_at_the_time is not None
-    assert graph_values[0].high_at_the_time is not None
+    assert graph_values[0].source == ReadingSource.GRAPH
 
 
 @pytest.mark.dependency(depends=["test_login"])
@@ -64,8 +64,7 @@ def test_get_logbook_data(client: LibreLinkUpClient) -> None:
     assert logbook_data[0].unix_timestamp is not None
     assert logbook_data[0].value is not None
     assert logbook_data[0].value_in_mg_per_dl is not None
-    assert logbook_data[0].low_at_the_time is not None
-    assert logbook_data[0].high_at_the_time is not None
+    assert logbook_data[0].source == ReadingSource.LOGBOOK
 
 
 @pytest.mark.dependency(depends=["test_login"])
@@ -74,5 +73,4 @@ def test_get_glucose_data(client: LibreLinkUpClient) -> None:
     assert glucose_data.unix_timestamp is not None
     assert glucose_data.value is not None
     assert glucose_data.value_in_mg_per_dl is not None
-    assert glucose_data.low_at_the_time is not None
-    assert glucose_data.high_at_the_time is not None
+    assert glucose_data.source == ReadingSource.LATEST_READING
