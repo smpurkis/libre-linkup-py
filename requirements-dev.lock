@@ -10,20 +10,12 @@
 -e file:.
 annotated-types==0.6.0
     # via pydantic
-anyio==4.3.0
-    # via httpx
 certifi==2024.2.2
-    # via httpcore
-    # via httpx
-h11==0.14.0
-    # via httpcore
-httpcore==1.0.4
-    # via httpx
-httpx==0.27.0
-    # via libre-linkup-py
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 idna==3.6
-    # via anyio
-    # via httpx
+    # via requests
 iniconfig==2.0.0
     # via pytest
 mypy==1.8.0
@@ -43,14 +35,15 @@ pytest==8.0.2
 pytest-dependency==0.6.0
 python-dotenv==1.0.1
     # via libre-linkup-py
+requests==2.31.0
+    # via libre-linkup-py
 setuptools==69.1.1
     # via pytest-dependency
-sniffio==1.3.1
-    # via anyio
-    # via httpx
 tenacity==8.2.3
     # via plotly
 typing-extensions==4.10.0
     # via mypy
     # via pydantic
     # via pydantic-core
+urllib3==2.2.1
+    # via requests

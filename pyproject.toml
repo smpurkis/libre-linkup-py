@@ -1,9 +1,9 @@
 [project]
 name = "libre-linkup-py"
-version = "0.2.0"
+version = "0.2.1"
 description = "Unofficial libre linkup python client"
 authors = [{ name = "Sam Purkis", email = "sam.purkis@hotmail.co.uk" }]
-dependencies = ["python-dotenv>=1.0.1", "httpx>=0.27.0"]
+dependencies = ["python-dotenv>=1.0.1", "requests>=2.31.0"]
 readme = "README.md"
 requires-python = ">= 3.9"
 

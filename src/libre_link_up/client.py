@@ -1,5 +1,4 @@
 from datetime import datetime
-import httpx
 from typing import Any, Optional
 from libre_link_up.types import (
     GlucoseSensorReading,
@@ -7,6 +6,7 @@ from libre_link_up.types import (
     Connection,
     ReadingSource,
 )
+import requests
 
 
 def _convert_timestamp_string_to_datetime(timestamp: str) -> float:
@@ -43,6 +43,7 @@ class LibreLinkUpClient:
             "cache-control": "no-cache",
             "connection": "Keep-Alive",
             "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36",
         }
         self.jwt_token: Optional[str] = None
 
@@ -50,7 +51,7 @@ class LibreLinkUpClient:
         """
         Log in to the LibreLinkUp API and set the JWT token
         """
-        response = httpx.post(
+        response = requests.post(
             f"{self.url}/llu/auth/login",
             headers=self.headers,
             json={"email": self.username, "password": self.password},
@@ -80,7 +81,7 @@ class LibreLinkUpClient:
         Returns:
             Dict[str, Any]: Raw JSON response from the LibreLinkUp API
         """
-        response = httpx.get(f"{self.url}/llu/connections", headers=self.headers)
+        response = requests.get(f"{self.url}/llu/connections", headers=self.headers)
         response.raise_for_status()
         connections = response.json()
         return connections
@@ -118,7 +119,7 @@ class LibreLinkUpClient:
         Returns:
             Dict[str, Any]: Raw JSON response from the LibreLinkUp API
         """
-        response = httpx.get(
+        response = requests.get(
             f"{self.url}/llu/connections/{self.connection.patient_id}/graph",
             headers=self.headers,
         )
@@ -166,7 +167,7 @@ class LibreLinkUpClient:
         Returns:
             Dict[str, Any]: Raw JSON response from the LibreLinkUp API
         """
-        response = httpx.get(
+        response = requests.get(
             f"{self.url}/llu/connections/{self.connection.patient_id}/logbook",
             headers=self.headers,
         )
