@@ -1,17 +1,29 @@
 from datetime import datetime
 from typing import Any, Optional
-from libre_link_up.types import (
+from libre_link_up.custom_types import (
     GlucoseSensorReading,
     LibreLinkUpUrl,
     Connection,
     ReadingSource,
 )
 import requests
+from datetime import datetime
+from typing import Any, Optional
+from pytz import timezone
+import requests
 
 
-def _convert_timestamp_string_to_datetime(timestamp: str) -> float:
+def _convert_timestamp_string_to_datetime(
+    timestamp: str, country: Optional[str]
+) -> float:
+    print(timestamp)
     # "8/16/2023 10:16:34 AM"
-    return datetime.strptime(timestamp, "%m/%d/%Y %I:%M:%S %p").timestamp()
+    dt = datetime.strptime(timestamp, "%m/%d/%Y %I:%M:%S %p")
+    if country is not None:
+        tz = timezone(country)
+        dt = tz.localize(dt)
+    print(dt.timestamp())
+    return dt.timestamp()
 
 
 class LibreLinkUpClient:
@@ -46,6 +58,7 @@ class LibreLinkUpClient:
             "user-agent": "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36",
         }
         self.jwt_token: Optional[str] = None
+        self.country: Optional[str] = None
 
     def login(self) -> None:
         """
@@ -59,6 +72,7 @@ class LibreLinkUpClient:
         response.raise_for_status()
         data = response.json()
         self.jwt_token = data["data"]["authTicket"]["token"]
+        self.country = data["data"]["user"]["country"]
         self.headers["Authorization"] = f"Bearer {self.jwt_token}"
 
     @property
@@ -150,7 +164,8 @@ class LibreLinkUpClient:
             glucose_readings.append(
                 GlucoseSensorReading(
                     unix_timestamp=_convert_timestamp_string_to_datetime(
-                        reading["Timestamp"]
+                        reading["Timestamp"],
+                        self.country,
                     ),
                     value=reading["Value"],
                     value_in_mg_per_dl=reading["ValueInMgPerDl"],
@@ -197,7 +212,8 @@ class LibreLinkUpClient:
             logbook_data.append(
                 GlucoseSensorReading(
                     unix_timestamp=_convert_timestamp_string_to_datetime(
-                        logbook_entry["Timestamp"]
+                        logbook_entry["Timestamp"],
+                        self.country,
                     ),
                     value=logbook_entry["Value"],
                     value_in_mg_per_dl=logbook_entry["ValueInMgPerDl"],
@@ -223,10 +239,27 @@ class LibreLinkUpClient:
         raw_reading = resp["data"]["connection"]["glucoseMeasurement"]
         latest_reading = GlucoseSensorReading(
             unix_timestamp=_convert_timestamp_string_to_datetime(
-                raw_reading["Timestamp"]
+                raw_reading["Timestamp"],
+                self.country,
             ),
             value=raw_reading["Value"],
             value_in_mg_per_dl=raw_reading["ValueInMgPerDl"],
             source=ReadingSource.LATEST_READING,
         )
         return latest_reading
+
+
+if __name__ == "__main__":
+    import os
+    import dotenv
+
+    dotenv.load_dotenv()
+
+    client = LibreLinkUpClient(
+        username=os.environ["LIBRE_LINK_UP_USERNAME"],
+        password=os.environ["LIBRE_LINK_UP_PASSWORD"],
+        url=os.environ["LIBRE_LINK_UP_URL"],
+        version=os.getenv("LIBRE_LINK_UP_VERSION", "4.7.0"),
+    )
+    client.login()
+    print(client.get_latest_reading())

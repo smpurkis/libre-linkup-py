@@ -1,6 +1,11 @@
+from datetime import datetime
 import pytest
-from libre_link_up.client import LibreLinkUpClient
-from libre_link_up.types import ReadingSource
+import pytz
+from libre_link_up.client import (
+    LibreLinkUpClient,
+    _convert_timestamp_string_to_datetime,
+)
+from libre_link_up.custom_types import ReadingSource
 
 
 @pytest.mark.dependency()
@@ -74,3 +79,18 @@ def test_get_glucose_data(client: LibreLinkUpClient) -> None:
     assert glucose_data.value is not None
     assert glucose_data.value_in_mg_per_dl is not None
     assert glucose_data.source == ReadingSource.LATEST_READING
+
+
+def test_without_timezone():
+    timestamp = "4/1/2024 4:36:19 PM"
+    expected = datetime.strptime(timestamp, "%m/%d/%Y %I:%M:%S %p").timestamp()
+    result = _convert_timestamp_string_to_datetime(timestamp, None)
+    assert result == 1711989379.0
+
+
+def test_with_timezone():
+    timestamp = "4/1/2024 4:36:19 PM"
+    country = "GB"
+    dt = datetime.strptime(timestamp, "%m/%d/%Y %I:%M:%S %p")
+    result = _convert_timestamp_string_to_datetime(timestamp, country)
+    assert result == 1711985779.0

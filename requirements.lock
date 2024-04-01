@@ -16,6 +16,8 @@ idna==3.6
     # via requests
 python-dotenv==1.0.1
     # via libre-linkup-py
+pytz==2024.1
+    # via libre-linkup-py
 requests==2.31.0
     # via libre-linkup-py
 urllib3==2.2.1

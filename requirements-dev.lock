@@ -35,6 +35,8 @@ pytest==8.0.2
 pytest-dependency==0.6.0
 python-dotenv==1.0.1
     # via libre-linkup-py
+pytz==2024.1
+    # via libre-linkup-py
 requests==2.31.0
     # via libre-linkup-py
 setuptools==69.1.1
