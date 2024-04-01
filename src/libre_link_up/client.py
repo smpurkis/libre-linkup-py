@@ -16,13 +16,11 @@ import requests
 def _convert_timestamp_string_to_datetime(
     timestamp: str, country: Optional[str]
 ) -> float:
-    print(timestamp)
     # "8/16/2023 10:16:34 AM"
     dt = datetime.strptime(timestamp, "%m/%d/%Y %I:%M:%S %p")
     if country is not None:
         tz = timezone(country)
         dt = tz.localize(dt)
-    print(dt.timestamp())
     return dt.timestamp()
 
 
