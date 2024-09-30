@@ -4,6 +4,7 @@ import os
 import dotenv
 
 from typing import Generator
+from libre_link_up.custom_types import LibreLinkUpUrl
 
 dotenv.load_dotenv()
 

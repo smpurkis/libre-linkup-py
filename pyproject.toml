@@ -1,6 +1,6 @@
 [project]
 name = "libre-linkup-py"
-version = "0.2.2"
+version = "0.2.4"
 description = "Unofficial libre linkup python client"
 authors = [{ name = "Sam Purkis", email = "sam.purkis@hotmail.co.uk" }]
 dependencies = ["python-dotenv>=1.0.1", "requests>=2.31.0", "pytz>=2024.1"]
@@ -11,7 +11,7 @@ requires-python = ">= 3.9"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
+[tool.uv]
 managed = true
 dev-dependencies = [
     "mypy>=1.8.0",

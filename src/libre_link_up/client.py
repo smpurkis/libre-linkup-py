@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 from typing import Any, Optional
 from libre_link_up.custom_types import (
     GlucoseSensorReading,
@@ -68,10 +69,12 @@ class LibreLinkUpClient:
             json={"email": self.username, "password": self.password},
         )
         response.raise_for_status()
-        data = response.json()
-        self.jwt_token = data["data"]["authTicket"]["token"]
-        self.country = data["data"]["user"]["country"]
-        self.headers["Authorization"] = f"Bearer {self.jwt_token}"
+        login_response = response.json()
+        if "data" not in login_response:
+            raise Exception(f"login response of unknown format: {login_response} with status code: {response.status_code}")
+        self.jwt_token = login_response["data"]["authTicket"]["token"]
+        self.country = login_response["data"]["user"]["country"]
+        self.headers["authorization"] = f"Bearer {self.jwt_token}"
 
     @property
     def connection(self) -> Connection:
@@ -260,4 +263,4 @@ if __name__ == "__main__":
         version=os.getenv("LIBRE_LINK_UP_VERSION", "4.7.0"),
     )
     client.login()
-    print(client.get_latest_reading())
+    print(client.get_graph_readings())
