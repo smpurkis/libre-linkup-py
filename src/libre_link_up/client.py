@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Any, Optional
 from pytz import timezone
 import requests
+from hashlib import sha256
 
 
 def _convert_timestamp_string_to_datetime(
@@ -54,6 +55,7 @@ class LibreLinkUpClient:
             "cache-control": "no-cache",
             "connection": "Keep-Alive",
             "content-type": "application/json",
+            "account-id" : "",
             "user-agent": "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36",
         }
         self.jwt_token: Optional[str] = None
@@ -75,6 +77,7 @@ class LibreLinkUpClient:
         self.jwt_token = login_response["data"]["authTicket"]["token"]
         self.country = login_response["data"]["user"]["country"]
         self.headers["authorization"] = f"Bearer {self.jwt_token}"
+        self.headers["account-id"] = sha256((login_response["data"]["user"]["id"]).encode('utf-8')).hexdigest()
 
     @property
     def connection(self) -> Connection:
